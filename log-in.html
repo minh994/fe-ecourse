@@ -231,6 +231,7 @@
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/main.js"></script>
     <script src="js/search.js"></script>
+    <script src="js/config.js"></script>
 
     <script>
         const validateEmail = (email) => {
@@ -249,48 +250,50 @@
                 const password = $('#password').val();
 
                 if (email.trim() == '') {
-                    alert('Email khong duoc rong')
+                    alert('Email không được để trống')
                     return false;
                 }
 
                 if (password.trim() == '') {
-                    alert('Password khong duoc rong')
+                    alert('Mật khẩu không được để trống')
                     return false;
                 }
 
                 if (!validateEmail(email)) {
-                    alert('Email khong dung dinh dang')
+                    alert('Email không đúng định dạng')
                     return false;
                 }
 
                 if (password.length < 6) {
-                    alert('Password > 8 ki tu')
+                    alert('Mật khẩu phải có ít nhất 6 ký tự')
                     return false;
                 }
 
                 if (password.length > 30) {
-                    alert('Password < 30 ki tu')
+                    alert('Mật khẩu không được quá 30 ký tự')
                     return false;
                 }
 
                 $.ajax({
-                    url: 'http://localhost:3000/users/login',
+                    url: API_ENDPOINTS.LOGIN,
                     type: 'POST',
-                    data: { email, password },
+                    contentType: 'application/json',
+                    data: JSON.stringify({ email, password }),
                     success: function (results) {
-                        // console.log(results);
-                        // return;
-                        if (results.access_token != undefined) {
-                            localStorage.setItem("token", results.access_token);
-                            // tu dong chuyen trang
-                            // window.location.href = '/index-course.html';
-                            alert('Logged in successfully')
+                        if (results.token) {
+                            localStorage.setItem("token", results.token);
+                            alert('Đăng nhập thành công');
                             window.location.href = '/index.html';
                         } else {
-                            alert('The account is not correct')
+                            alert('Tài khoản hoặc mật khẩu không chính xác');
                         }
-                        // localStorage.setItem("myCat", "Tom");
-                        // console.log(results);
+                    },
+                    error: function (xhr, status, error) {
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            alert('Lỗi: ' + xhr.responseJSON.message);
+                        } else {
+                            alert('Đã xảy ra lỗi trong quá trình đăng nhập');
+                        }
                     }
                 });
 

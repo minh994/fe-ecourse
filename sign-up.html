@@ -230,6 +230,7 @@
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/main.js"></script>
     <script src="js/search.js"></script>
+    <script src="js/config.js"></script>
 
 
     <script>
@@ -250,54 +251,58 @@
                 const password = $('#password').val();
 
                 if (username.trim() == '') {
-                    alert('FullName khong duoc rong')
+                    alert('Tên không được để trống')
                     return false;
                 }
 
                 if (email.trim() == '') {
-                    alert('Email khong duoc rong')
+                    alert('Email không được để trống')
                     return false;
                 }
 
                 if (password.trim() == '') {
-                    alert('Password khong duoc rong')
+                    alert('Mật khẩu không được để trống')
                     return false;
                 }
 
                 if (!validateEmail(email)) {
-                    alert('Email khong dung dinh dang')
+                    alert('Email không đúng định dạng')
                     return false;
                 }
 
                 if (password.length < 6) {
-                    alert('Password > 8 ki tu')
+                    alert('Mật khẩu phải có ít nhất 6 ký tự')
                     return false;
                 }
 
                 if (password.length > 30) {
-                    alert('Password < 30 ki tu')
+                    alert('Mật khẩu không được quá 30 ký tự')
                     return false;
                 }
 
                 $.ajax({
-                    url: 'http://localhost:3000/users/register',
+                    url: API_ENDPOINTS.REGISTER,
                     type: 'POST',
-                    data: { username, email, password },
+                    contentType: 'application/json',
+                    data: JSON.stringify({ 
+                        name: username, 
+                        email: email, 
+                        password: password 
+                    }),
                     success: function (results) {
-                        // console.log(username, email, password);
-                        // console.log(results);
-                        // return
-                        if (results === '') {
-
-                            alert('Đăng ký thành công');
-                            // tu dong chuyen trang
-                            window.location.href = '/log-in.html';
-                        } else {
-                            alert('Đăng ký thất bại: ' + results.error);
-                        }
+                        alert('Đăng ký thành công');
+                        window.location.href = '/log-in.html';
                     },
                     error: function (xhr, status, error) {
-                        alert('Đã xảy ra lỗi trong quá trình đăng ký: ' + xhr.responseText);
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            if (xhr.responseJSON.message === 'Email already registered') {
+                                alert('Email này đã được đăng ký. Vui lòng sử dụng email khác.');
+                            } else {
+                                alert('Lỗi: ' + xhr.responseJSON.message);
+                            }
+                        } else {
+                            alert('Đã xảy ra lỗi trong quá trình đăng ký');
+                        }
                     }
                 });
 
